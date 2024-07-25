@@ -1,14 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Console Log Test</title>
-</head>
-<body>
+<script
+  type="text/javascript"
+  src="https://eepaas-public.s3-cache-accelerate.cn-north-1.jdcloud-oss.com/JSSDK/JDME-JSSDK-1.0.33.js"
+></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <script src="1.js"></script>
-</body>
-</html>
-
-
+<Script>
+   alert("aa");
+    var options = {
+        image: "base64==",
+        imageName: "test.jpg",
+        callback: function(res) {
+            alert(JSON.stringify(res));
+        }
+    }
+    jme.album.saveImage(options);
+</Script>
