@@ -7,13 +7,14 @@
   <style>
     body { font-family: sans-serif; background: #111; color: #eee; padding: 20px; }
     pre { background: #222; padding: 10px; border-radius: 5px; overflow-x: auto; }
-    button { padding: 8px 12px; margin-bottom: 10px; }
+    button { padding: 8px 12px; margin: 5px; }
   </style>
 </head>
 <body>
   <h2>isTrusted 鼠标与键盘事件检测</h2>
   <p>请尝试点击或键盘输入，查看事件是否由用户真实触发（isTrusted）。</p>
   <button id="simulate">生成合成点击事件</button>
+  <button id="doNothing">请点我</button>
   <pre id="output"></pre>
 
   <script>
@@ -42,6 +43,11 @@
     simulate.addEventListener('click', () => {
       const evt = new MouseEvent('click', { bubbles: true, cancelable: true });
       simulate.dispatchEvent(evt);
+    });
+
+    // “请点我”按钮不做任何事情
+    document.getElementById('doNothing').addEventListener('click', () => {
+      // 故意留空
     });
   </script>
 </body>
