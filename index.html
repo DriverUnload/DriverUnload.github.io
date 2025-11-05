@@ -1,10 +1,48 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>isTrusted 鼠标键盘事件检测</title>
+  <style>
+    body { font-family: sans-serif; background: #111; color: #eee; padding: 20px; }
+    pre { background: #222; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    button { padding: 8px 12px; margin-bottom: 10px; }
+  </style>
+</head>
 <body>
+  <h2>isTrusted 鼠标与键盘事件检测</h2>
+  <p>请尝试点击或键盘输入，查看事件是否由用户真实触发（isTrusted）。</p>
+  <button id="simulate">生成合成点击事件</button>
+  <pre id="output"></pre>
 
-<h1>a 元素</h1>
+  <script>
+    const output = document.getElementById('output');
+    const simulate = document.getElementById('simulate');
 
-<a href="http://192.168.240.1:8086/#pageTest">访问 w3school.com.cn!</a>
+    function logEvent(e) {
+      const info = {
+        type: e.type,
+        isTrusted: e.isTrusted,
+        key: e.key || null,
+        button: e.button !== undefined ? e.button : null,
+        clientX: e.clientX || null,
+        clientY: e.clientY || null,
+        timeStamp: e.timeStamp.toFixed(2)
+      };
+      output.textContent += JSON.stringify(info) + "\n";
+    }
 
+    // 监听鼠标与键盘事件
+    ['click', 'mousedown', 'mouseup', 'mousemove', 'keydown', 'keyup'].forEach(type => {
+      window.addEventListener(type, logEvent, true);
+    });
+
+    // 生成合成事件
+    simulate.addEventListener('click', () => {
+      const evt = new MouseEvent('click', { bubbles: true, cancelable: true });
+      simulate.dispatchEvent(evt);
+    });
+  </script>
 </body>
 </html>
