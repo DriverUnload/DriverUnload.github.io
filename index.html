@@ -12,7 +12,7 @@
 </head>
 <body>
   <h2>isTrusted 鼠标与键盘事件检测</h2>
-  <p>请尝试点击或键盘输入，查看事件是否由用户真实触发（isTrusted）。</p>
+  <p>请尝试点击或键盘输入，查看事件是否由用户真实触发（isTrusted + 坐标一致性）。</p>
   <button id="simulate">生成合成点击事件</button>
   <button id="doNothing">请点我</button>
   <pre id="output"></pre>
@@ -20,6 +20,7 @@
   <script>
     const output = document.getElementById('output');
     const simulate = document.getElementById('simulate');
+    const doNothing = document.getElementById('doNothing');
 
     function logEvent(e) {
       const info = {
@@ -29,26 +30,60 @@
         button: e.button !== undefined ? e.button : null,
         clientX: e.clientX || null,
         clientY: e.clientY || null,
+        pageX: e.pageX || null,
+        pageY: e.pageY || null,
+        screenX: e.screenX || null,
+        screenY: e.screenY || null,
         timeStamp: e.timeStamp.toFixed(2)
       };
       output.textContent += JSON.stringify(info) + "\n";
     }
 
-    // 监听鼠标与键盘事件
+    // 全局事件记录
     ['click', 'mousedown', 'mouseup', 'mousemove', 'keydown', 'keyup'].forEach(type => {
       window.addEventListener(type, logEvent, true);
     });
 
-    // 生成合成事件
+    // 生成合成点击事件
     simulate.addEventListener('click', () => {
       const evt = new MouseEvent('click', { bubbles: true, cancelable: true });
       simulate.dispatchEvent(evt);
     });
 
-    // “请点我”按钮不做任何事情
-    document.getElementById('doNothing').addEventListener('click', () => {
-      console.log('doNothing');
-      // 故意留空
+    // “请点我”按钮 —— 坐标一致性检测逻辑
+    doNothing.addEventListener('click', (e) => {
+      let score = 0;
+      let reason = [];
+
+      // 检查是否用户真实触发
+      if (!e.isTrusted) {
+        reason.push('事件不可信 (isTrusted = false)');
+        score += 1;
+      }
+
+      // 检查坐标一致性
+      if (e.pageX === e.screenX && e.pageY === e.screenY) {
+        reason.push('page 与 screen 坐标完全一致');
+        score += 1;
+      }
+
+      // 检查是否可能为移动端触控（移动端允许部分相等）
+      if (navigator.userAgentData && navigator.userAgentData.mobile) {
+        reason.push('移动端环境（宽容处理）');
+        score -= 0.5;
+      }
+
+      // 检查窗口高度差（判断是否全屏）
+      if (window.outerHeight - window.innerHeight <= 1) {
+        reason.push('全屏模式，忽略差异');
+        score -= 0.5;
+      }
+
+      const result = score > 0
+        ? `⚠️ 疑似模拟点击，score=${score.toFixed(1)}，原因：${reason.join('、')}`
+        : `✅ 正常点击`;
+
+      output.textContent += `[doNothing检测] ${result}\n`;
     });
   </script>
 </body>
